@@ -1,0 +1,38 @@
+.characterCard {
+    width: 550px;
+    height: 220px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow: hidden;
+    background: white;
+    border-radius: 0.5rem;
+    border: 1px solid #443C3E;
+    -webkit-box-shadow: 0 5px 10px 2px rgba(68, 60, 62, 0.2);
+    -moz-box-shadow: 0 5px 10px 2px rgba(68, 60, 62, 0.2);
+    box-shadow: 0 5px 10px 2px rgba(68, 60, 62, 0.2);
+    margin: 0.75rem;
+    .avatar {
+        img {
+            display: block;
+            object-fit: cover;
+            width: 220px;
+        }
+    }
+    .description {
+        padding: 10px;
+        h2 {
+            font-size: 1.5rem;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            span {
+                margin: 0 5px;
+            }
+        }
+        .info {
+            margin-top: 10px;
+        }
+    }
+}
