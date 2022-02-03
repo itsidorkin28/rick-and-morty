@@ -1,17 +1,14 @@
 import React from 'react'
-import s from './CharacterCard.module.scss'
+import s from './ModalSingleCharacter.module.scss'
 import styled from 'styled-components'
+import {useSelector} from 'react-redux'
+import {RootStateType} from '../../../../app/store'
+import {ICharacter} from '../../../../api/characters-api'
+import {RequestStatusType} from '../../../../app/app-reducer'
+import {LinearProgress} from '@mui/material'
 
-type CharacterCardType = {
-	name: string,
-	status: string,
-	species: string,
-	type: string,
-	gender: string,
-	id: number,
-	image: string,
-	location: string,
-
+type ModalSingleCharacterType = {
+	closeModalWindow: () => void
 }
 
 const StatusCircle = styled.div<{color: string}>`
@@ -21,31 +18,43 @@ const StatusCircle = styled.div<{color: string}>`
     background-color: ${props => props.color};
 `
 
-export const CharacterCard = React.memo(({
-	                                         name, status, id, image, location,
-	                                         species, type, gender,
-                                         }: CharacterCardType) => {
+export const ModalSingleCharacter = React.memo(({closeModalWindow}: ModalSingleCharacterType) => {
 
-	const statusColor = status === 'Alive' ? 'green' : status === 'Dead' ? 'red' : 'grey'
-	const characterType = type ? <p>Type: <span>{type}</span></p> : <p>Type: <span>unknown</span></p>
+	const character = useSelector<RootStateType, ICharacter>(state => state.modalSingleCharacter)
+	const appStatus = useSelector<RootStateType, RequestStatusType>(state => state.app.status)
+	const statusColor = character.status === 'Alive' ? 'green' : character.status === 'Dead' ? 'red' : 'grey'
+
+	const characterType = character.type ? <p>Type: {character.type}</p> :
+		<p>Type: unknown</p>
+
+	if (appStatus === 'failed') {
+		closeModalWindow()
+	}
 	return (
-		<div className={s.characterCard}>
-			<div className={s.avatar}>
-				<img src={image} alt={name} />
-			</div>
-			<div className={s.description}>
-				<h2>
-					{name}
-				</h2>
-				<div className={s.status}>
-					<StatusCircle color={statusColor} /> <span>{status}</span> - <span>{species}</span>
+		<div className={s.modalBackground}>
+			{appStatus === 'loading'
+				? <LinearProgress color='inherit' />
+				: <div className={s.modalCard}>
+					<div className={s.avatar}>
+						<button className={s.btn} onClick={closeModalWindow}>Close</button>
+						<img src={character.image} alt={character.name} />
+					</div>
+					<div className={s.description}>
+						<h2>
+							{character.name}
+						</h2>
+						<div className={s.status}>
+							<StatusCircle color={statusColor} />
+							<span>{character.status}</span> - <span>{character.species}</span>
+						</div>
+						<div className={s.info}>
+							<p>Gender: {character.gender}</p>
+							{characterType}
+							<p>Location: {character.location.name}</p>
+						</div>
+					</div>
 				</div>
-				<div className={s.info}>
-					<p>Gender: <span>{gender}</span></p>
-					{characterType}
-					<p>Location: <span>{location}</span></p>
-				</div>
-			</div>
+			}
 		</div>
 	)
 })

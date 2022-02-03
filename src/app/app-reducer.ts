@@ -1,64 +1,47 @@
-import {charactersApi, IAllCharacters} from '../../api/characters-api'
-import {ThunkType} from '../../app/store'
-
-export enum CHARACTERS_ACTIONS {
-	SET_CHARACTERS = 'CHARACTERS/SET-CHARACTERS',
+export enum APP_ACTIONS {
+	SET_APP_INITIALIZED = 'APP/SET-APP-INITIALIZED',
+	SET_APP_ERROR = 'APP/SET-APP-ERROR',
+	SET_APP_STATUS = 'APP/SET-APP-STATUS',
 }
 
-const initialState: IAllCharacters = {
-	info: {
-		count: 826,
-		pages: 42,
-		next: null,
-		prev: null,
-	},
-	results: [
-		{
-			id: 1,
-			name: 'Alex',
-			status: 'status',
-			species: 'species',
-			type: 'type',
-			gender: 'male',
-			origin: {
-				name: 'name',
-				url: 'test',
-			},
-			location: {
-				name: 'name',
-				url: 'test',
-			},
-			image: 'image',
-			episode: [],
-			url: 'test',
-			created: new Date(),
-		},
-	],
+const initialState = {
+	status: 'idle' as RequestStatusType,
+	error: null as AppErrorType,
+	isAppInitialized: false as boolean,
 }
 
-export const charactersReducer = (state = initialState, action: CharactersActionsType) => {
+export const appReducer = (state = initialState, action: AppActionsType) => {
 	switch (action.type) {
-		case CHARACTERS_ACTIONS.SET_CHARACTERS:
-			return {...state, info: {...action.payload.info}, results: [...action.payload.results]}
+		case APP_ACTIONS.SET_APP_INITIALIZED:
+			return {...state, isAppInitialized: action.payload}
+		case APP_ACTIONS.SET_APP_ERROR:
+			return {...state, error: action.payload}
+		case APP_ACTIONS.SET_APP_STATUS:
+			return {...state, status: action.payload}
 		default:
 			return state
 	}
 }
 
 // Actions
-export const setCharacters = (payload: IAllCharacters) => {
-	return {type: CHARACTERS_ACTIONS.SET_CHARACTERS, payload} as const
+export const setAppInitialized = (payload: boolean) => {
+	return {type: APP_ACTIONS.SET_APP_INITIALIZED, payload} as const
 }
-
-// Thunks
-export const fetchAllCharacters = (page: number): ThunkType => async dispatch => {
-	try {
-		const result = await charactersApi.fetchAllCharacters(page)
-		dispatch(setCharacters(result.data))
-	} catch (e) {
-		console.log((e as Error).message)
-	}
+export const setAppStatus = (payload: RequestStatusType) => {
+	return {type: APP_ACTIONS.SET_APP_STATUS, payload} as const
+}
+export const setAppError = (payload: AppErrorType) => {
+	return {type: APP_ACTIONS.SET_APP_ERROR, payload} as const
 }
 
 // Types
-export type CharactersActionsType = ReturnType<typeof setCharacters>
+export type AppActionsType =
+	ReturnType<typeof setAppInitialized>
+	| ReturnType<typeof setAppStatus>
+	| ReturnType<typeof setAppError>
+
+export type AppInitialStateType = typeof initialState
+
+export type RequestStatusType = 'idle' | 'loading' | 'succeeded' | 'failed'
+
+export type AppErrorType = string | null;

@@ -1,71 +1,60 @@
-import {charactersApi, GenderType, IAllCharacters, StatusType} from '../../api/characters-api'
-import {ThunkType} from '../../app/store'
-import {setAppError, setAppInitialized} from '../../app/app-reducer'
+import {charactersApi, ICharacter} from '../../../../api/characters-api'
+import {setAppError, setAppStatus} from '../../../../app/app-reducer'
+import { ThunkType } from '../../../../app/store'
 
-export enum CHARACTERS_ACTIONS {
-	SET_CHARACTERS = 'CHARACTERS/SET-CHARACTERS',
+export enum MODAL_SINGLE_CHARACTER_ACTIONS {
+	SET_MODAL_SINGLE_CHARACTER = 'CHARACTERS/SET-MODAL-SINGLE-CHARACTER',
 }
 
-const initialState: IAllCharacters = {
-	info: {
-		count: 20,
-		pages: 1,
-		next: null,
-		prev: null,
+const initialState: ICharacter = {
+	id: 1,
+	name: 'unknown',
+	status: 'unknown',
+	species: 'unknown',
+	type: 'unknown',
+	gender: 'unknown',
+	origin: {
+		name: 'unknown',
+		url: 'unknown',
 	},
-	results: [
-		{
-			id: 1,
-			name: 'unknown',
-			status: 'unknown',
-			species: 'unknown',
-			type: 'unknown',
-			gender: 'unknown',
-			origin: {
-				name: 'unknown',
-				url: 'unknown',
-			},
-			location: {
-				name: 'unknown',
-				url: 'unknown',
-			},
-			image: 'unknown',
-			episode: [],
-			url: 'unknown',
-			created: new Date(),
-		},
-	],
+	location: {
+		name: 'unknown',
+		url: 'unknown',
+	},
+	image: 'unknown',
+	episode: [],
+	url: 'unknown',
+	created: new Date(),
 }
 
-export const charactersReducer = (state = initialState, action: CharactersActionsType) => {
+
+export const modalSingleCharacterReducer = (state = initialState, action: ModalSingleCharactersActionsType) => {
 	switch (action.type) {
-		case CHARACTERS_ACTIONS.SET_CHARACTERS:
-			return {...state, info: {...action.payload.info}, results: [...action.payload.results]}
+		case MODAL_SINGLE_CHARACTER_ACTIONS.SET_MODAL_SINGLE_CHARACTER:
+			return {...state, ...action.payload}
 		default:
 			return state
 	}
 }
 
 // Actions
-export const setCharacters = (payload: IAllCharacters) => {
-	return {type: CHARACTERS_ACTIONS.SET_CHARACTERS, payload} as const
+export const setSingleCharacter = (payload: ICharacter) => {
+	return {type: MODAL_SINGLE_CHARACTER_ACTIONS.SET_MODAL_SINGLE_CHARACTER, payload} as const
 }
 
 // Thunks
-export const fetchAllCharacters = (page: number, name: string,
-                                   status: StatusType, species: string,
-                                   type: string, gender: GenderType): ThunkType => async dispatch => {
+export const fetchSingleCharacterCharacters = (id: number): ThunkType => async dispatch => {
+	dispatch(setAppStatus('loading'))
 	try {
-		const result = await charactersApi.fetchAllCharacters(page, name, status, species, type, gender)
-		dispatch(setCharacters(result.data))
+		const result = await charactersApi.fetchSingleCharacter(id)
+		dispatch(setSingleCharacter(result.data))
+		dispatch(setAppStatus('succeeded'))
 	} catch (e) {
 		dispatch(setAppError((e as Error).message))
-	} finally {
-		dispatch(setAppInitialized(true))
+		dispatch(setAppStatus('failed'))
 	}
 }
 
 
-
 // Types
-export type CharactersActionsType = ReturnType<typeof setCharacters>
+export type ModalSingleCharactersActionsType = ReturnType<typeof setSingleCharacter>
